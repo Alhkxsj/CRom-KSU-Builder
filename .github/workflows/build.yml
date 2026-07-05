@@ -47,9 +47,19 @@ on:
         options:
           - Manual-Type
           - LineageOS
-          - crdroidandroid
-          - OnePlus12R-development
           - YAAP
+          - PixelOS-Devices
+          - PixelExperience-Devices
+          - VoltageOS-Devices
+          - BlissRoms-Devices
+          - AxionAOSP-devices
+          - AlphaDroid-devices
+          - DerpFest-Devices
+          - MistOS-Devices
+          - crdroidandroid
+          - Evolution-X-Devices
+          - Infinity-X-Devices
+          - OnePlus12R-development
 
       kernel_source_manual:
         description: "Kernel-Source-Manual: If u selected Manual-Type in previous options, manually type ur repo's org/user on github here."
@@ -70,7 +80,7 @@ on:
         description: "Kernel-Branch: such as lineage-23.2 sixteen-qpr1 etc."
         required: true
         type: string
-        default: ""
+        default: "lineage-23.2"
         
       kernel_configs:
         description: "Kernel-Configs: Select ur kernel configs(Use Manual-Type to custom it)"
@@ -79,6 +89,7 @@ on:
         default: oplus-sm8550-los
         options:
           - Manual-Type
+          - oplus-sdm845-los
           - oplus-sm8150-los
           - oplus-sm8150-yaap
           - oplus-sm8250-los
@@ -97,6 +108,7 @@ on:
         description: "KSU: KernelSU Version"
         required: true
         type: choice
+        default: None
         options:
           - None
           - Official-KernelSU
@@ -150,7 +162,7 @@ on:
           - "3.18"
 
       has_modules_repo:
-        description: "Has-Modules-Repo: Enable this ur kernel has modules repo"
+        description: "Has-Modules-Repo: Enable this ur kernel has modules repo(mostly for gki 2.0)"
         required: true
         type: boolean
         default: true
@@ -162,31 +174,31 @@ on:
         default: false
 
       enable_gcc:
-        description: "Enable-GCC: Enable the GCC support"
+        description: "Enable-GCC: Enable the GCC support(mostly for 4.14 and below)"
         required: true
         type: boolean
         default: false
       
       enable_gcc_32bits:
-        description: "Enable-GCC-32Bits: Enable the 32Bits GCC support"
+        description: "Enable-GCC-32Bits: Enable the 32Bits GCC support(mostly for 4.9 and below)"
         required: true
         type: boolean
         default: false
 
       fuck_modules_sig_protect:
-        description: "Fuck-Modules-Sig-Protect: FUCK MODULES SIG Protectttt"
+        description: "Fuck-Modules-Sig-Protect: FUCK MODULES SIG Protect(maybe need for 6.1)"
         required: true
         type: boolean
         default: false
 
       fuck_werror:
-        description: "Fuck-Werror: FUCK WERROR IN CONFIGS"
+        description: "Fuck-Werror: FUCK WERROR IN CONFIGS(by disable WERROR and CC_WERROR)"
         required: true
         type: boolean
         default: false
 
       enable_my_own_susfs_patch:
-        description: "fuck susfs: fuck susfs"
+        description: "Fuck susfs: apply patches in patches dir about susfs"
         required: true
         type: boolean
         default: false
@@ -328,11 +340,11 @@ jobs:
               ;;
 
             "Official-KernelSU")
-              curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main || exit 1
+              curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/refs/heads/main/kernel/setup.sh" | bash -s main || exit 1
               ;;
 
             "KowSU")
-              curl -LSs "https://raw.githubusercontent.com/KOWX712/KernelSU/main/kernel/setup.sh" | bash -s master || exit 1
+              curl -LSs "https://raw.githubusercontent.com/KOWX712/KernelSU/refs/heads/master/kernel/setup.sh" | bash -s master || exit 1
               ;;
 
             "KernelSU-by-xx")
@@ -340,7 +352,7 @@ jobs:
               ;;
 
             "KernelSU-Next")
-              curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s dev || exit 1
+              curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/refs/heads/dev/kernel/setup.sh" | bash -s dev || exit 1
               ;;
 
             "KernelSU-Next-with-susfs")
@@ -348,7 +360,7 @@ jobs:
               ;;
 
             "ReSukiSU"|"ReSukiSU-with-susfs")
-              curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash -s main || exit 1
+              curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/refs/heads/main/kernel/setup.sh" | bash -s main || exit 1
               ;;
 
           esac
@@ -479,6 +491,7 @@ jobs:
           export SUBARCH=arm64
           export LLVM=1
           export LLVM_IAS=1
+
           if [[ "${{ inputs.enable_gcc }}" == "true" ]]; then
 
             export CROSS_COMPILE=aarch64-linux-gnu-
@@ -494,10 +507,12 @@ jobs:
           if [[ "${{ inputs.droidspaces }}" != "None" ]]; then
 
             export DROIDSPACES_CONFIG="vendor/droidspaces.config"
+            echo "Enabled DroidSpaces config"
 
           else
 
             export DROIDSPACES_CONFIG=""
+            echo "With no DroidSpaces config"
 
           fi
 
@@ -512,87 +527,94 @@ jobs:
 
             fi
 
-            make O=out ${{ inputs.kernel_configs_manual }} $DROIDSPACES_CONFIG
+            KERNEL_CONFIGS="${{ inputs.kernel_configs_manual }}"
+            echo -e "Applied manual kernel config: ${{ inputs.kernel_configs_manual }}"
 
           else
 
             case "${{ inputs.kernel_configs }}" in
 
+              "oplus-sdm845-los")
+              KERNEL_CONFIGS="enchilada_defconfig vendor/debugfs.config"
+              ;;
+
               "oplus-sm8150-los")
-              make O=out vendor/sm8150-perf_defconfig vendor/oplus.config $DROIDSPACES_CONFIG
+              KERNEL_CONFIGS="vendor/sm8150-perf_defconfig vendor/oplus.config"
               ;;
 
               "oplus-sm8150-yaap")
-              make O=out gulch_defconfig vendor/debugfs.config $DROIDSPACES_CONFIG
+              KERNEL_CONFIGS="gulch_defconfig vendor/debugfs.config"
               ;;
 
               "oplus-sm8250-los")
-              make O=out vendor/kona-perf_defconfig vendor/oplus.config $DROIDSPACES_CONFIG
+              KERNEL_CONFIGS="vendor/kona-perf_defconfig vendor/oplus.config"
               ;;
 
               "oplus-sm8350-los")
-              make O=out vendor/lahaina-qgki_defconfig $DROIDSPACES_CONFIG
+              KERNEL_CONFIGS="vendor/lahaina-qgki_defconfig"
               ;;
 
               "oplus-sm8550-los")
-              make O=out gki_defconfig vendor/kalama_GKI.config vendor/oplus/kalama_GKI.config vendor/debugfs.config $DROIDSPACES_CONFIG
+              KERNEL_CONFIGS="gki_defconfig vendor/kalama_GKI.config vendor/oplus/kalama_GKI.config vendor/debugfs.config"
               ;;
 
               "oplus-sm8650-los")
-              make O=out gki_defconfig vendor/pineapple_GKI.config vendor/oplus/pineapple_GKI.config $DROIDSPACES_CONFIG
+              KERNEL_CONFIGS="gki_defconfig vendor/pineapple_GKI.config vendor/oplus/pineapple_GKI.config"
               ;;
 
               "oplus-sm8750-los")
-              make O=out gki_defconfig vendor/sun_perf.config vendor/oplus/sun_perf.config $DROIDSPACES_CONFIG
+              KERNEL_CONFIGS="gki_defconfig vendor/sun_perf.config vendor/oplus/sun_perf.config"
               ;;
 
             esac
 
+            echo -e "Applied ${{ inputs.kernel_configs }}"
+
           fi
+
+          configs_list=(${KERNEL_CONFIGS})
 
           if [[ "${{ inputs.enable_tmpfs-xattr }}" == "true" ]]; then
 
-            sed -i '/CONFIG_TMPFS_XATTR/d' out/.config
-            echo "CONFIG_TMPFS_XATTR=y" >> out/.config
+            sed -i '/CONFIG_TMPFS_XATTR/d' arch/arm64/configs/${configs_list[0]}
+            echo "CONFIG_TMPFS_XATTR=y" >> arch/arm64/configs/${configs_list[0]}
+            echo "Enabled TMPFS_XATTR"
 
           fi
 
           if [[ "${{ inputs.fuck_werror }}" == "true" ]]; then
 
-            sed -i '/CONFIG_CC_WERROR/d' out/.config
-            sed -i '/CONFIG_WERROR/d' out/.config
-            echo "CONFIG_CC_WERROR=n" >> out/.config
-            echo "CONFIG_WERROR=n" >> out/.config
+            sed -i '/CONFIG_CC_WERROR/d' arch/arm64/configs/${configs_list[0]}
+            sed -i '/CONFIG_WERROR/d' arch/arm64/configs/${configs_list[0]}
+            echo "CONFIG_CC_WERROR=n" >> arch/arm64/configs/${configs_list[0]}
+            echo "CONFIG_WERROR=n" >> arch/arm64/configs/${configs_list[0]}
+            echo "Disabled WERROR and CC_WERROR"
 
           fi
 
           if [[ "${{ inputs.fuck_modules_sig_protect }}" == "true" ]]; then
 
-            sed -i '/CONFIG_MODULE_SIG_PROTECT/d' out/.config
-            echo "CONFIG_MODULE_SIG_PROTECT=n" >> out/.config
+            sed -i '/CONFIG_MODULE_SIG_PROTECT/d' arch/arm64/configs/${configs_list[0]}
+            echo "CONFIG_MODULE_SIG_PROTECT=n" >> arch/arm64/configs/${configs_list[0]}
+            echo "Disabled MODULE_SIG_PROTECT"
 
           fi
 
           if [[ "${{ inputs.ksu_type }}" == "KernelSU-by-xx" ]]; then
 
-            echo "CONFIG_KSU_TAMPER_SYSCALL_TABLE=y" >> out/.config
+            echo "CONFIG_KSU_TAMPER_SYSCALL_TABLE=y" >> arch/arm64/configs/${configs_list[0]}
+            echo "Enabled KSU_TAMPER_SYSCALL_TABLE for xxksu"
 
           fi
 
           if [[ "${{ inputs.ksu_type }}" == *susfs* ]]; then
 
-            echo "CONFIG_KSU_SUSFS=y" >> out/.config
-            echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> out/.config
-            echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> out/.config
-            echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> out/.config
-            echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> out/.config
-            echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> out/.config
-            echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> out/.config
-            echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> out/.config
-            echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> out/.config
-            echo "CONFIG_KSU_SUSFS_SUS_MAP=y" >> out/.config
+            echo "CONFIG_KSU_SUSFS=y" >> arch/arm64/configs/${configs_list[0]}
+            echo "Enabled KSU_SUSFS"
 
           fi
+
+          make O=out $KERNEL_CONFIGS $DROIDSPACES_CONFIG
 
       - name: Build Kernel Image
         run: |
@@ -625,6 +647,7 @@ jobs:
           git clone https://github.com/Kernel-SU/AnyKernel3.git || exit 1
           cp ${{ inputs.soc }}/out/arch/arm64/boot/Image AnyKernel3/Image
           cp ${{ inputs.soc }}/out/arch/arm64/boot/Image ./Image
+          cp ${{ inputs.soc }}/out/.config ./.config
           cd AnyKernel3 || exit 1
           sed -i "s|ksu_supported=false|ksu_supported=true|" anykernel.sh
           zip -r9 ../"${ZIP_NAME}.zip" * -x .git
@@ -634,4 +657,4 @@ jobs:
           REL_NAME="${{ inputs.soc }}_${{ inputs.kernel_source }}-${{ inputs.kernel_branch }}_${{ inputs.ksu_type }}_$(date -u +"%Y%m%d_%H%M")"
           cd ${GITHUB_WORKSPACE} || exit 1
           ZIP_FILE=$(ls *.zip)
-          gh release create "$REL_NAME" --title "$REL_NAME" --notes "" "${ZIP_FILE}" Image build.log options.txt
+          gh release create "$REL_NAME" --title "$REL_NAME" --notes "$(cat options.txt)" "${ZIP_FILE}" Image build.log options.txt .config
