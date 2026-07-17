@@ -1,175 +1,10 @@
 name: Compile Alhkxsj Kernel
 
 on:
+  push:
+    branches:
+      - '**'
   workflow_dispatch:
-    inputs:
-      brand:
-        description: "Brand: Select your brand"
-        required: true
-        type: choice
-        default: oneplus
-        options:
-          - Manual-Type
-          - oneplus
-          - xiaomi
-          - sony
-      brand_manual:
-        description: "Brand-Manual: If selected Manual-Type in previous options, manually type ur brand"
-        required: false
-        type: string
-        default: ""
-      soc:
-        description: "SOC: Type your soc"
-        required: true
-        type: string
-        default: "sm8550"
-      clang_version:
-        description: "Clang-Version: Select the clang version of ur kernel"
-        required: true
-        type: choice
-        default: clang-r563880c
-        options:
-          - clang-r416183b1 #lineage-19.1 in android12-qpr3-release
-          - clang-r450784d #lineage-20.0 in android13-qpr3-release
-          - clang-r487747c #lineage-21.0 in android14-qpr3-release
-          - clang-r536225 #lineage-22.2 in android15-qpr2-release
-          - clang-r547379 #lineage-23.0 in android16-qpr3-release
-          - clang-r563880c #lineage-23.2 in android16-qpr3-release
-      kernel_source:
-        description: "Kernel-Source: Kernel repo's org/user on github"
-        required: true
-        type: choice
-        default: LineageOS
-        options:
-          - Manual-Type
-          - LineageOS
-          - crdroidandroid
-          - OnePlus12R-development
-          - YAAP
-      kernel_source_manual:
-        description: "Kernel-Source-Manual: If u selected Manual-Type in previous options, manually type ur repo's org/user on github here."
-        required: false
-        type: string
-        default: ""
-      kernel_source_format:
-        description: "Source-Format: Select ur kernel source format(1 for los etc. 2 for yaap etc.)(keep default if u dont know)"
-        required: true
-        type: choice
-        default: android_kernel
-        options:
-          - android_kernel
-          - kernel
-      kernel_branch:
-        description: "Kernel-Branch: such as lineage-23.2 sixteen-qpr1 etc."
-        required: true
-        type: string
-        default: ""
-      kernel_configs:
-        description: "Kernel-Configs: Select ur kernel configs(Use Manual-Type to custom it)"
-        required: true
-        type: choice
-        default: oplus-sm8550-los
-        options:
-          - Manual-Type
-          - oplus-sm8150-los
-          - oplus-sm8150-yaap
-          - oplus-sm8250-los
-          - oplus-sm8350-los
-          - oplus-sm8550-los
-          - oplus-sm8650-los
-          - oplus-sm8750-los
-      kernel_configs_manual:
-        description: "Kernel-Configs-Manual: If u selected Manual-Type in previous options, manually type ur kernel configs here."
-        required: false
-        type: string
-        default: ""
-      ksu_type:
-        description: "KSU: KernelSU Version"
-        required: true
-        type: choice
-        options:
-          - None
-          - Official-KernelSU
-          - KernelSU-Next
-          - KernelSU-Next-with-susfs
-          - KowSU
-          - KernelSU-by-xx
-          - ReSukiSU
-          - ReSukiSU-with-susfs
-      susfs-gki:
-        description: "SUSFS-GKI: select ur kernel version(for gki)"
-        required: true
-        type: choice
-        default: None
-        options:
-          - None
-          - android12-5.10
-          - android13-5.10
-          - android13-5.15
-          - android14-5.15
-          - android14-6.1
-          - android15-6.6
-          - android16-6.12
-      susfs-nongki:
-        description: "SUSFS-NONGKI: select ur kernel version(for nongki)"
-        required: true
-        type: choice
-        default: None
-        options:
-          - None
-          - "4.9"
-          - "4.14"
-          - "4.19"
-          - "5.4"
-      droidspaces:
-        description: "DroidSpaces: Enable DroidSpaces"
-        required: true
-        type: choice
-        default: None
-        options:
-          - None
-          - "6.12"
-          - 5.15-6.6
-          - "5.10"
-          - "5.4"
-          - 4.14-4.19
-          - 4.4-4.9
-          - "3.18"
-      has_modules_repo:
-        description: "Has-Modules-Repo: Enable this ur kernel has modules repo"
-        required: true
-        type: boolean
-        default: true
-      enable_tmpfs-xattr:
-        description: "TMPFS_XATTR: U can enable this if ur kernel has no CONFIG_TMPFS_XATTR=y"
-        required: true
-        type: boolean
-        default: false
-      enable_gcc:
-        description: "Enable-GCC: Enable the GCC support"
-        required: true
-        type: boolean
-        default: false
-      enable_gcc_32bits:
-        description: "Enable-GCC-32Bits: Enable the 32Bits GCC support"
-        required: true
-        type: boolean
-        default: false
-      fuck_modules_sig_protect:
-        description: "Fuck-Modules-Sig-Protect: FUCK MODULES SIG Protectttt"
-        required: true
-        type: boolean
-        default: false
-      fuck_werror:
-        description: "Fuck-Werror: FUCK WERROR IN CONFIGS"
-        required: true
-        type: boolean
-        default: false
-      enable_my_own_susfs_patch:
-        description: "fuck susfs: fuck susfs"
-        required: true
-        type: boolean
-        default: false
 
 jobs:
   Kernel_CI:
@@ -208,49 +43,41 @@ jobs:
       - name: Save options
         run: |
           {
-          echo "brand:${{ inputs.brand }}"
-          echo "brand_manual:${{inputs.brand_manual}}"
-          echo "soc:${{ inputs.soc }}"
-          echo "clang_version:${{ inputs.clang_version }}"
-          echo "kernel_source:${{ inputs.kernel_source }}"
-          echo "kernel_source_manual:${{ inputs.kernel_source_manual }}"
-          echo "kernel_source_format:${{ inputs.kernel_source_format }}"
-          echo "kernel_branch:${{ inputs.kernel_branch }}"
-          echo "kernel_configs:${{ inputs.kernel_configs }}"
-          echo "kernel_configs_manual:${{ inputs.kernel_configs_manual }}"
-          echo "ksu_type:${{ inputs.ksu_type }}"
-          echo "susfs-gki:${{ inputs.susfs-gki }}"
-          echo "susfs-nongki:${{ inputs.susfs-nongki }}"
-          echo "droidspaces:${{ inputs.droidspaces }}"
-          echo "has_modules_repo:${{ inputs.has_modules_repo }}"
-          echo "enable_tmpfs-xattr:${{ inputs.enable_tmpfs-xattr }}"
-          echo "enable_gcc:${{ inputs.enable_gcc }}"
-          echo "enable_gcc_32bits:${{ inputs.enable_gcc_32bits }}"
-          echo "fuck_modules_sig_protect:${{ inputs.fuck_modules_sig_protect }}"
-          echo "fuck_werror:${{ inputs.fuck_werror }}"
-          echo "enable_my_own_susfs_patch:${{ inputs.enable_my_own_susfs_patch }}"
+          echo "brand:xiaomi"
+          echo "brand_manual:"
+          echo "soc:raphael"
+          echo "clang_version:clang-r547379"
+          echo "kernel_source:YAAP"
+          echo "kernel_source_manual:"
+          echo "kernel_source_format:kernel"
+          echo "kernel_branch:sixteen"
+          echo "kernel_configs:Manual-Type"
+          echo "kernel_configs_manual:raphael_defconfig"
+          echo "ksu_type:KernelSU-by-xx"
+          echo "susfs-gki:None"
+          echo "susfs-nongki:None"
+          echo "droidspaces:4.14-4.19"
+          echo "has_modules_repo:false"
+          echo "enable_tmpfs-xattr:false"
+          echo "enable_gcc:true"
+          echo "enable_gcc_32bits:false"
+          echo "fuck_modules_sig_protect:false"
+          echo "fuck_werror:true"
+          echo "enable_my_own_susfs_patch:false"
           } | tee -a options.txt
 
       - name: Clone Kernel Source
         run: |
-          if [[ "${{ inputs.brand }}" == "Manual-Type" ]]; then
-            brand="${{ inputs.brand_manual }}"
-          else
-            brand="${{ inputs.brand }}"
-          fi
-          if [[ "${{ inputs.kernel_source }}" == "Manual-Type" ]]; then
-            source="${{ inputs.kernel_source_manual }}"
-          else
-            source="${{ inputs.kernel_source }}"
-          fi
-          git clone --depth=1 -b ${{ inputs.kernel_branch }} https://github.com/${source}/${{ inputs.kernel_source_format }}_${brand}_${{ inputs.soc }}.git ${{ inputs.soc }} || exit 1
-          if [[ "${{ inputs.has_modules_repo }}" == "true" ]]; then
-            git clone --depth=1 -b ${{ inputs.kernel_branch }} https://github.com/${source}/${{ inputs.kernel_source_format }}_${brand}_${{ inputs.soc }}-modules.git ${{ inputs.soc }}-modules || exit 1
+          brand="xiaomi"
+          source="YAAP"
+          git clone --depth=1 -b sixteen https://github.com/${source}/kernel_${brand}_raphael.git raphael || exit 1
+          if [[ "false" == "true" ]]; then
+            git clone --depth=1 -b sixteen https://github.com/${source}/kernel_${brand}_raphael-modules.git raphael-modules || exit 1
           fi
 
       - name: Download AOSP Clang
         run: |
-          case "${{ inputs.clang_version }}" in
+          case "clang-r547379" in
             "clang-r416183b1")
               curl -LO https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android12-qpr3-release/clang-r416183b1.tar.gz || exit 1
               ;;
@@ -270,9 +97,9 @@ jobs:
               curl -LO https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android16-qpr2-release/clang-r563880c.tar.gz || exit 1
               ;;
           esac
-          mkdir -p toolchains/${{ inputs.clang_version }}
-          tar -xf "${{ inputs.clang_version }}.tar.gz" -C "toolchains/${{ inputs.clang_version }}" || exit 1
-          if [[ "${{ inputs.enable_gcc_32bits }}" == "true" ]]; then
+          mkdir -p toolchains/clang-r547379
+          tar -xf "clang-r547379.tar.gz" -C "toolchains/clang-r547379" || exit 1
+          if [[ "false" == "true" ]]; then
             curl -LO https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/heads/android12L-release.tar.gz
             mkdir -p toolchains/arm-linux-androideabi
             tar -xf android12L-release.tar.gz -C toolchains/arm-linux-androideabi
@@ -280,8 +107,8 @@ jobs:
 
       - name: Include goodies
         run: |
-          cd ${{ inputs.soc }} || exit 1
-          case "${{ inputs.ksu_type }}" in
+          cd raphael || exit 1
+          case "KernelSU-by-xx" in
             "None") ;;
             "Official-KernelSU")
               curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main || exit 1
@@ -303,72 +130,72 @@ jobs:
               ;;
           esac
 
-          if [[ "${{ inputs.droidspaces }}" == "6.12" ]]; then
+          if [[ "4.14-4.19" == "6.12" ]]; then
             curl -Lo patch-for-6.12.patch https://raw.githubusercontent.com/ravindu644/Droidspaces-OSS/refs/heads/main/Documentation/resources/kernel-patches/GKI/kernel-6.12/001.GKI-6.12-or-above-fix_sysvipc_kabi.patch || exit 1
             patch -p1 < patch-for-6.12.patch
             cp ${GITHUB_WORKSPACE}/configs/droidspaces-gki.config arch/arm64/configs/vendor/droidspaces.config
-          elif [[ "${{ inputs.droidspaces }}" == "5.15-6.6" ]]; then
+          elif [[ "4.14-4.19" == "5.15-6.6" ]]; then
             curl -Lo patch-for-below-6.12.patch https://raw.githubusercontent.com/ravindu644/Droidspaces-OSS/refs/heads/main/Documentation/resources/kernel-patches/GKI/below-kernel-6.12/001.GKI-below-6.12-fix_sysvipc_kabi_6_7_8.patch || exit 1
             patch -p1 < patch-for-below-6.12.patch
             cp ${GITHUB_WORKSPACE}/configs/droidspaces-gki.config arch/arm64/configs/vendor/droidspaces.config
-          elif [[ "${{ inputs.droidspaces }}" == "5.10" ]]; then
+          elif [[ "4.14-4.19" == "5.10" ]]; then
             curl -Lo patch-for-below-6.12.patch https://raw.githubusercontent.com/ravindu644/Droidspaces-OSS/refs/heads/main/Documentation/resources/kernel-patches/GKI/below-kernel-6.12/001.GKI-below-6.12-fix_sysvipc_kabi_6_7_8.patch || exit 1
             patch -p1 < patch-for-below-6.12.patch || exit 1
             curl -Lo patch-for-5.10-or-lower.patch https://raw.githubusercontent.com/ravindu644/Droidspaces-OSS/refs/heads/main/Documentation/resources/kernel-patches/GKI/below-kernel-6.12/002.5.10_or_lower_use_android_abi_padding_for_posix_mqueue.patch || exit 1
             patch -p1 < patch-for-5.10-or-lower.patch
             cp ${GITHUB_WORKSPACE}/configs/droidspaces-gki.config arch/arm64/configs/vendor/droidspaces.config
-          elif [[ "${{ inputs.droidspaces }}" == "5.4" ]]; then
+          elif [[ "4.14-4.19" == "5.4" ]]; then
             curl -Lo patch-for-below-6.12.patch https://raw.githubusercontent.com/ravindu644/Droidspaces-OSS/refs/heads/main/Documentation/resources/kernel-patches/GKI/below-kernel-6.12/001.GKI-below-6.12-fix_sysvipc_kabi_6_7_8.patch || exit 1
             patch -p1 < patch-for-below-6.12.patch
             curl -Lo patch-for-5.10-or-lower.patch https://raw.githubusercontent.com/ravindu644/Droidspaces-OSS/refs/heads/main/Documentation/resources/kernel-patches/GKI/below-kernel-6.12/002.5.10_or_lower_use_android_abi_padding_for_posix_mqueue.patch || exit 1
             sed -i '/ANDROID_OEM_DATA_ARRAY/d' patch-for-5.10-or-lower.patch
             git apply --recount patch-for-5.10-or-lower.patch
             cp ${GITHUB_WORKSPACE}/configs/droidspaces-gki.config arch/arm64/configs/vendor/droidspaces.config
-          elif [[ "${{ inputs.droidspaces }}" == "4.14-4.19" ]]; then
+          elif [[ "4.14-4.19" == "4.14-4.19" ]]; then
             curl -Lo patch-fix-cgroup.patch https://raw.githubusercontent.com/ravindu644/Droidspaces-OSS/refs/heads/main/Documentation/resources/kernel-patches/non-GKI/02.fix_restore%20cgroup%20file%20prefix%20handling%20.patch || exit 1
             patch -p1 < patch-fix-cgroup.patch
             cp ${GITHUB_WORKSPACE}/configs/droidspaces-nongki.config arch/arm64/configs/vendor/droidspaces.config
-          elif [[ "${{ inputs.droidspaces }}" == "4.4-4.9" ]]; then
+          elif [[ "4.14-4.19" == "4.4-4.9" ]]; then
             cp ${GITHUB_WORKSPACE}/configs/droidspaces-nongki.config arch/arm64/configs/vendor/droidspaces.config
-          elif [[ "${{ inputs.droidspaces }}" == "3.18" ]]; then
+          elif [[ "4.14-4.19" == "3.18" ]]; then
             curl -Lo patch-fix-xt_qtaguid.patch https://raw.githubusercontent.com/ravindu644/Droidspaces-OSS/refs/heads/main/Documentation/resources/kernel-patches/non-GKI/01.fix_kernel_panic_in_xt_qtaguid.patch || exit 1
             patch -p1 < patch-fix-xt_qtaguid.patch
             cp ${GITHUB_WORKSPACE}/configs/droidspaces-nongki.config arch/arm64/configs/vendor/droidspaces.config
           fi
 
-          if [[ "${{ inputs.ksu_type }}" == *susfs* ]]; then
-            if [[ "${{ inputs.susfs-gki }}" == "None" && "${{ inputs.susfs-nongki }}" == "None" ]]; then
+          if [[ "KernelSU-by-xx" == *susfs* ]]; then
+            if [[ "None" == "None" && "None" == "None" ]]; then
               echo "skip susfs"
-            elif [[ "${{ inputs.susfs-gki }}" != "None" && "${{ inputs.susfs-nongki }}" != "None" ]]; then
+            elif [[ "None" != "None" && "None" != "None" ]]; then
               echo "what do you mean???, why selected susfs for gki and nongki at the same time"
               exit 1
-            elif [[ "${{ inputs.susfs-gki }}" != "None" ]]; then
-              git clone -b gki-${{ inputs.susfs-gki }} https://gitlab.com/simonpunk/susfs4ksu.git susfs || exit 1
+            elif [[ "None" != "None" ]]; then
+              git clone -b gki-None https://gitlab.com/simonpunk/susfs4ksu.git susfs || exit 1
               cd susfs || exit 1
-              cp ./kernel_patches/50_add_susfs_in_gki-${{ inputs.susfs-gki }}.patch ../susfs.patch
+              cp ./kernel_patches/50_add_susfs_in_gki-None.patch ../susfs.patch
               cp ./kernel_patches/fs/* ../fs/
               cp ./kernel_patches/include/linux/* ../include/linux/
               cd .. || exit 1
-            elif [[ "${{ inputs.susfs-nongki }}" != "None" ]]; then
-              curl -Lo susfs.patch https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Build_2nd/refs/heads/mainline/Patches/Patch/susfs_patch_to_${{ inputs.susfs-nongki }}.patch || exit 1
+            elif [[ "None" != "None" ]]; then
+              curl -Lo susfs.patch https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Build_2nd/refs/heads/mainline/Patches/Patch/susfs_patch_to_None.patch || exit 1
               curl -Lo inline.sh https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Build_2nd/refs/heads/mainline/Patches/susfs_inline_hook_patches.sh || exit 1
             fi
 
-            if [[ "${{ inputs.enable_my_own_susfs_patch }}" == "true" ]]; then
-              if [[ "${{ inputs.susfs-gki }}" == "android13-5.15" ]]; then
+            if [[ "false" == "true" ]]; then
+              if [[ "None" == "android13-5.15" ]]; then
                 patch -p1 < ${GITHUB_WORKSPACE}/patches/fix_task_mmu_c.patch
               fi
             fi
 
-            if [[ "${{ inputs.susfs-gki }}" != "None" ]]; then
+            if [[ "None" != "None" ]]; then
               patch -p1 < susfs.patch
-            elif [[ "${{ inputs.susfs-nongki }}" != "None" ]]; then
+            elif [[ "None" != "None" ]]; then
               patch -p1 < susfs.patch
               bash inline.sh
             fi
 
-            if [[ "${{ inputs.enable_my_own_susfs_patch }}" == "true" ]]; then
-              if [[ "${{ inputs.susfs-nongki }}" == "5.4" ]]; then
+            if [[ "false" == "true" ]]; then
+              if [[ "None" == "5.4" ]]; then
                 patch -p1 < ${GITHUB_WORKSPACE}/patches/fix_mount_in_5.4.patch
               fi
             fi
@@ -377,32 +204,32 @@ jobs:
 
       - name: Make Kernel Configs
         run: |
-          CLANG_ROOT="${GITHUB_WORKSPACE}/toolchains/${{ inputs.clang_version }}/bin"
+          CLANG_ROOT="${GITHUB_WORKSPACE}/toolchains/clang-r547379/bin"
           export PATH="${CLANG_ROOT}:$PATH"
           export ARCH=arm64
           export SUBARCH=arm64
           export LLVM=1
           export LLVM_IAS=1
-          if [[ "${{ inputs.enable_gcc }}" == "true" ]]; then
+          if [[ "true" == "true" ]]; then
             export CROSS_COMPILE=aarch64-linux-gnu-
           fi
-          if [[ "${{ inputs.enable_gcc_32bits }}" == "true" ]]; then
+          if [[ "false" == "true" ]]; then
             export CROSS_COMPILE_ARM32=${GITHUB_WORKSPACE}/toolchains/arm-linux-androideabi/bin/arm-linux-androideabi-
           fi
-          if [[ "${{ inputs.droidspaces }}" != "None" ]]; then
+          if [[ "4.14-4.19" != "None" ]]; then
             export DROIDSPACES_CONFIG="vendor/droidspaces.config"
           else
             export DROIDSPACES_CONFIG=""
           fi
-          cd ${{ inputs.soc }} || exit 1
-          if [[ "${{ inputs.kernel_configs }}" == "Manual-Type" ]]; then
-            if [[ -z "${{ inputs.kernel_configs_manual }}" ]]; then
+          cd raphael || exit 1
+          if [[ "Manual-Type" == "Manual-Type" ]]; then
+            if [[ -z "raphael_defconfig" ]]; then
               echo "U didnt type configs"
               exit 1
             fi
-            make O=out ${{ inputs.kernel_configs_manual }} $DROIDSPACES_CONFIG
+            make O=out raphael_defconfig $DROIDSPACES_CONFIG
           else
-            case "${{ inputs.kernel_configs }}" in
+            case "Manual-Type" in
               "oplus-sm8150-los")
                 make O=out vendor/sm8150-perf_defconfig vendor/oplus.config $DROIDSPACES_CONFIG
                 ;;
@@ -427,24 +254,24 @@ jobs:
             esac
           fi
 
-          if [[ "${{ inputs.enable_tmpfs-xattr }}" == "true" ]]; then
+          if [[ "false" == "true" ]]; then
             sed -i '/CONFIG_TMPFS_XATTR/d' out/.config
             echo "CONFIG_TMPFS_XATTR=y" >> out/.config
           fi
-          if [[ "${{ inputs.fuck_werror }}" == "true" ]]; then
+          if [[ "true" == "true" ]]; then
             sed -i '/CONFIG_CC_WERROR/d' out/.config
             sed -i '/CONFIG_WERROR/d' out/.config
             echo "CONFIG_CC_WERROR=n" >> out/.config
             echo "CONFIG_WERROR=n" >> out/.config
           fi
-          if [[ "${{ inputs.fuck_modules_sig_protect }}" == "true" ]]; then
+          if [[ "false" == "true" ]]; then
             sed -i '/CONFIG_MODULE_SIG_PROTECT/d' out/.config
             echo "CONFIG_MODULE_SIG_PROTECT=n" >> out/.config
           fi
-          if [[ "${{ inputs.ksu_type }}" == "KernelSU-by-xx" ]]; then
+          if [[ "KernelSU-by-xx" == "KernelSU-by-xx" ]]; then
             echo "CONFIG_KSU_TAMPER_SYSCALL_TABLE=y" >> out/.config
           fi
-          if [[ "${{ inputs.ksu_type }}" == *susfs* ]]; then
+          if [[ "KernelSU-by-xx" == *susfs* ]]; then
             echo "CONFIG_KSU_SUSFS=y" >> out/.config
             echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> out/.config
             echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> out/.config
@@ -457,48 +284,43 @@ jobs:
             echo "CONFIG_KSU_SUSFS_SUS_MAP=y" >> out/.config
           fi
 
-          # ═══════════════════════════════════════
-          # ✨ 在这里加上你专属的内核版本后缀 ✨
-          # ═══════════════════════════════════════
           sed -i '/^CONFIG_LOCALVERSION=/d' out/.config
           echo 'CONFIG_LOCALVERSION="-Alhkxsj-SparkleBunny"' >> out/.config
-          # 关闭自动后缀，这样就不会再追加 git 哈希了
           sed -i 's/^CONFIG_LOCALVERSION_AUTO=y/CONFIG_LOCALVERSION_AUTO=n/' out/.config
 
       - name: Build Kernel Image
         run: |
-          CLANG_ROOT="${GITHUB_WORKSPACE}/toolchains/${{ inputs.clang_version }}/bin"
+          CLANG_ROOT="${GITHUB_WORKSPACE}/toolchains/clang-r547379/bin"
           export PATH="${CLANG_ROOT}:$PATH"
           export ARCH=arm64
           export SUBARCH=arm64
           export LLVM=1
           export LLVM_IAS=1
-          if [[ "${{ inputs.enable_gcc }}" == "true" ]]; then
+          if [[ "true" == "true" ]]; then
             export CROSS_COMPILE=aarch64-linux-gnu-
           fi
-          if [[ "${{ inputs.enable_gcc_32bits }}" == "true" ]]; then
+          if [[ "false" == "true" ]]; then
             export CROSS_COMPILE_ARM32=${GITHUB_WORKSPACE}/toolchains/arm-linux-androideabi/bin/arm-linux-androideabi-
           fi
-          cd ${{ inputs.soc }} || exit 1
+          cd raphael || exit 1
           set -o pipefail
           make -j$(nproc) O=out Image 2>&1 | tee ${GITHUB_WORKSPACE}/build.log
 
       - name: Make AnyKernel3
         run: |
-          ZIP_NAME="${{ inputs.soc }}_${{ inputs.kernel_source }}-${{ inputs.kernel_branch }}_${{ inputs.ksu_type }}_$(date -u +"%Y%m%d_%H%M")"
+          ZIP_NAME="raphael_YAAP-sixteen_KernelSU-by-xx_$(date -u +"%Y%m%d_%H%M")"
           git clone https://github.com/Kernel-SU/AnyKernel3.git || exit 1
-          cp ${{ inputs.soc }}/out/arch/arm64/boot/Image AnyKernel3/Image
-          cp ${{ inputs.soc }}/out/arch/arm64/boot/Image ./Image
+          cp raphael/out/arch/arm64/boot/Image AnyKernel3/Image
+          cp raphael/out/arch/arm64/boot/Image ./Image
           cd AnyKernel3 || exit 1
           sed -i "s|ksu_supported=false|ksu_supported=true|" anykernel.sh
-          # ✨ 加上 Ak3 里显示的内核名字，同样用可爱的后缀 ✨
           sed -i 's/^# kernel.string=/kernel.string=/' anykernel.sh
           sed -i "s|kernel.string=.*|kernel.string=Alhkxsj-SparkleBunny|" anykernel.sh
           zip -r9 ../"${ZIP_NAME}.zip" * -x .git
 
       - name: Create GitHub Release
         run: |
-          REL_NAME="${{ inputs.soc }}_${{ inputs.kernel_source }}-${{ inputs.kernel_branch }}_${{ inputs.ksu_type }}_$(date -u +"%Y%m%d_%H%M")"
+          REL_NAME="raphael_YAAP-sixteen_KernelSU-by-xx_$(date -u +"%Y%m%d_%H%M")"
           cd ${GITHUB_WORKSPACE} || exit 1
           ZIP_FILE=$(ls *.zip)
           gh release create "$REL_NAME" --title "$REL_NAME" --notes "" "${ZIP_FILE}" Image build.log options.txt
