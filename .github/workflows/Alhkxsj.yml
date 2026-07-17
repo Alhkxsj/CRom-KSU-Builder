@@ -308,7 +308,7 @@ jobs:
 
       - name: Make AnyKernel3
         run: |
-          ZIP_NAME="raphael_YAAP-sixteen_KernelSU-by-xx_$(date -u +"%Y%m%d_%H%M")"
+          ZIP_NAME="raphael_YAAP-sixteen_KernelSU-by-xx"
           git clone https://github.com/Kernel-SU/AnyKernel3.git || exit 1
           cp raphael/out/arch/arm64/boot/Image AnyKernel3/Image
           cp raphael/out/arch/arm64/boot/Image ./Image
